@@ -72,7 +72,7 @@ DBeaver输入用户名连接进入
 DQL：Data Query Language 数据查询语言  
 SELECT
 
-### 基础查询
+### 1. 基础查询
 #### 语法：
 SELECT 查询列表 FROM 表名;
 
@@ -107,7 +107,7 @@ SELECT 查询列表 FROM 表名;
 > SELECT CONCAT(字符1, 字符2, 字符3,...);  
 > SELECT LENGTH(字符/字段);  #获取字节长度
    
-### 条件查询
+### 2. 条件查询
 语法：  
 > SELECT  
 > 查询列表   
@@ -132,7 +132,7 @@ SELECT 查询列表 FROM 表名;
     　+ a in(10, 30, 50)
 + IS NULL: 判断NULL值
    
-### 排序查询
+### 3. 排序查询
 语法：  
 > SELECT  
 > 查询列表  
@@ -148,7 +148,7 @@ SELECT 查询列表 FROM 表名;
 2. 升序： ASC   
    降序：DESC  
    
-### 常见函数
+### 4. 常见函数
 说明：SQL中的函数分为单行函数和分组函数  
 调用语法：SELECT 函数名(实参列表);
 
@@ -218,7 +218,7 @@ LOWER(str): 变小写
 4. 分组函数可以和distinct搭配使用，实现去重的统计
     SELECT count(distinct 字段) FROM 表;
    
-#### 分组查询
+### 5. 分组查询
 语法：  
 > SELECT 分组函数，分组的字段    
 > FROM 表名  
@@ -236,13 +236,16 @@ LOWER(str): 变小写
 |分组前筛选|原始表|WHERE|GROUP BY前面|
 |分组后筛选|分组后的结果集|HAVING|GROUP BY后面|
 
-#### 连接查询
+### 6. 连接查询
 说明：当查询中涉及到了多个字段，则需要通过多表连接  
 笛卡尔乘积：  
 出现原因：没有有效的连接条件  
 解决办法：添加有效的连接条件  
+
+-----
+
 ---------------------------SQL92语法-----------------------------
- 语法：  
+ #### 语法：  
 > SELECT 查询列表  
 > FROM 表1 别名1, 表2 别名2 ...  
 > WHERE 连接条件   
@@ -260,8 +263,10 @@ LOWER(str): 变小写
 6. SELECT  
 7. ORDER BY  
 
+-----
+
 ---------------------------SQL99语法-----------------------------
-内连接语法：  
+#### 内连接语法：  
 > SELECT 查询列表  
 > FROM 表1 别名1  
 > [INNER] JOIN 表2 别名2 ON 连接条件  
@@ -270,8 +275,115 @@ LOWER(str): 变小写
 > GROUP BY 分组列表  
 > HAVING 分组后筛选  
 > ORDER BY 排序列表
+> LIMIT 子句;
+
+#### 特点
+1. 表的顺序可以调换  
+2. 内连接的结果=夺标的交集  
+3. n表连接至少需要n-1个连接条件
+
+##### 分类  
+1. 等值连接   
+2. 非等值连接  
+3. 自连接  
    
+#### 外连接语法
+> SELECT 查询列表  
+> FROM 表1 别名1  
+> LEFT | RIGHT [OUTER] JOIN 表2 别名2 ON 连接条件  
+> LEFT | RIGHT [OUTER] JOIN 表3 别名3 ON 连接条件    
+> WHERE 筛选条件  
+> GROUP BY 分组列表  
+> HAVING 分组后筛选  
+> ORDER BY 排序列表
+> LIMIT 子句;
+
+##### 特点
+1. 查询的结果=主表中所有的行，其中从表和它匹配的将显示匹配行，如果从表没有匹配项则显示null  
+2. LEFT JOIN左边的是主表；RIGHT JOIN右边的就是主表；FULL JOIN两边都是主表
+3. 一般用于查询除了交集部分剩余的不匹配的行
+
+### 交叉连接
+> SELECT 查询列表
+> FROM 表1 别名1
+> CROSS JOIN 表2 别名2;
    
+#### 特点：
+类似于笛卡尔乘积
+
+-----
+
+### 7. 子查询
+#### 含义
+嵌套在其他语句内部的SELECT语句称为子查询或内查询  
+外面的语句可以是INSERT、UPDATE、DELETE、**SELECT**等，一般SELECT作为外部语句较多  
+外部如果为SELECT语句，则此语句称为外查询或主查询
+#### 分类
+按出现位置：  
++ SELECT 后面：仅仅支持标量子查询  
++ FROM 后面： 表子查询
++ **WHERE 或 HAVING**：**标量子查询**、**列子查询**、行子查询
++ EXISTS 后面：标量子查询、列子查询、行子查询、表子查询
+
+按结果集的行列
++ **标量子查询(单行子查询)：结果集为一行一列**
++ **列子查询(多行子查询)：结果集为多行一列**
++ 行子查询：结果集为多行多列
++ 表子查询(嵌套子查询)：结果集为多行多列
+
+#### 示例
+WHERE或HAVING后面
+1. 标量子查询
+案例：查询最低工资的员工姓名和工资
+````
+# 最低工资
+SELECT min(salary) 
+FROM employees;
+
+# 查询员工的姓名和工资，要求工资等于最低工资
+SELECT last_name, salary
+FROM employees
+WHERE salary = (
+SELECT min(salary) 
+FROM employees
+);  
+````
+
+2. 列子查询
+案例：查询所有是领导的员工姓名
+````
+# 查询所有员工的manager_id
+SELECT manager_id
+FROM employees;
+
+# 查询姓名，employee_id属于上列表的一个
+SELECT first_name
+FROM employees
+WHERE employee_id IN (
+SELECT manager_id
+FROM employees;
+)
+````
+
+### 8. 分页查询
+#### 应用场景
+当要查询的条目数太多，一页显示不全
+#### 语法
+> SELECT 查询列表
+> FROM 表
+> LIMIT [offset,] size;
+
+#### 注意：
++ offset代表的是其实的条目索引，默认从0开始
++ size代表的是显示的条目数
+
+#### 公式
+加入要显示的页数为page，每一页条目数为size
+> SELECT 查询列表
+> FROM 表
+> LIMIT (page-1)*size, size
+
+
 
     
 
