@@ -36,7 +36,7 @@
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="aspect.path.notification.shown" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../JavaProject/JavaNotebook" />
     <property name="node.js.detected.package.eslint" value="true" />
     <property name="node.js.detected.package.tslint" value="true" />
     <property name="node.js.path.for.package.eslint" value="project" />
@@ -65,7 +65,9 @@
       <workItem from="1614482244380" duration="9980000" />
       <workItem from="1614495361740" duration="824000" />
       <workItem from="1614496195894" duration="430000" />
-      <workItem from="1614593635709" duration="1848000" />
+      <workItem from="1614593635709" duration="2460000" />
+      <workItem from="1614816935398" duration="701000" />
+      <workItem from="1614817706407" duration="4635000" />
     </task>
     <task id="LOCAL-00001" summary="update">
       <created>1613975982894</created>
@@ -102,7 +104,14 @@
       <option name="project" value="LOCAL" />
       <updated>1614496209883</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="update">
+      <created>1614595489928</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1614595489928</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

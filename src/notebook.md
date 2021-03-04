@@ -383,6 +383,174 @@ FROM employees;
 > FROM 表
 > LIMIT (page-1)*size, size
 
+### 9. 联合查询
+#### 含义
+UNION：合并、联合，将多次查询结果合并为一个结果
+#### 语法
+> 查询语句1  
+> UNION[all]  
+> 查询语句2  
+> UNION [all]  
+> . . . 
+
+#### 意义
+1. 将一条比较复杂的语句拆分成多条语句
+2. 使用于查询多个表的时候，查询的列基本一致
+
+#### 特点
+1. 要求多条语句的查询列数必须一致
+2. 要求多条查询语句的查询各列类型、顺序最好一致
+3. UNION：默认去重；UNION ALL：可以包含重复项
+
+### 查询总结
+#### 语法
+> SELECT 查询列表            ⑦  
+> FROM 表1 别名              ①   
+> 连接类型 JOIN 表2          ②    
+> ON 连接条件               ③    
+> WHERE 筛选               ④  
+> GROUP BY 分组列表         ⑤   
+> HAVING 筛选              ⑥  
+> ORDER BY  排序列表        ⑧  
+> LIMIT 起始条目索引，条目数  ⑨   
+
+## DML语言
+### 1. 插入
+#### 方式一
+语法
+> INSERT INTO 表名(字段名, ...) values(值, ...);  
+
+特点：   
+1. 要求值的类型与字段的类型要一致或兼容
+2. 字段的个数和顺序不一定和原表的一致，单必须要正值和字段一一对应
+3. 假如表中有可以为null的字段，注意可以通过以下两种方式插入null值  
+   ① 字段和值都省略
+   ② 字段写上，值使用null
+4. 字段和值的个数必须一致
+5. 字段名可以省略，默认所有列
+
+#### 方式二
+语法
+> INSERT INTO 表名 SET 字段 = 值, 字段 = 值, ...
+
+#### 两种方式的区别：
+方式一支持一次插入多行，语法如下：
+> INSERT INTO 表名[(字段名, ...)] values(值, ...), (值, ...), ...
+
+方式一支持子查询，语法如下：
+> INSERT INTO 表名  
+> 查询语句;
+
+### 修改
+#### 修改单表的记录
+语法：
+> UPDATE 表名 SET 字段 = 值, 字段 = 值 [WHERE 筛选条件]
+
+#### 修改多表的记录
+语法：
+> UPDATE 表1 别名 LEFT/RIGHT/ INNER JOIN 表2 别名   
+> ON 连接条件    
+> SET字段 = 值, 字段 = 值[WHERE 筛选条件] 
+
+### 删除
+#### 使用DELETE
+1. 删除单表的记录
+   > DELETE FROM 表名 [WHERE 筛选条件 LIMIT 条目数] 
+2. 级联删除
+   > DELETE 别名1, 别名2 FROM 表1 别名1 INNER/LEFT/RIGHT JOIN 表2 别名2  
+   > ON 连接条件
+   > [WHERE 筛选条件]
+   
+#### 使用TRUNCATE
+> TRUNCATE TABLE 表名;
+
+两种方式的区别
+1. TRUNCATE删除后如果再插入，标识列从1开始  
+    DELETE删除后如果再插入，标识列从断点开始
+2. DELETE可以添加筛选条件，而TRUNCATE不能
+3. TRUNCATE效率高
+4. TRUNCATE无返回值，DELETE可以返回受影响的行数
+5. TRUNCATE不可以回滚，DELETE可以
+
+## DDL语言
+### 库的管理
+#### 创建库
+> CREATE DATABASE [IF NOT EXISTS] 库名 [CHARACTER SET 字符集名];
+#### 修改库
+> ALTER DATABASE 库名 CHARACTER SET 字符集名;
+
+#### 删除库
+> DROP DATABASE [IF EXISTS] 库名
+
+### 表的管理
+#### 创建表
+> CREATE TABLE [IF NOT EXISTS] 表名(  
+>   字段名 字段类型 [约束],
+>   字段名 字段类型 [约束],
+>    . . . 
+>   字段名 字段类型 [约束]
+> )
+
+#### 修改表
+1. 添加列
+> ALTER TABLE 表名 add column 列名 类型 [FIRST/AFTER 字段名];
+
+2. 修改列的类型或约束
+> ALTER TABLE 表名 MODIFY COLUMN 列名 新类型 [新约束]
+   
+3. 修改列名
+> ALTER TABLE 表名 CHANGE COLUMN 旧列名 新列名 类型;
+
+4. 删除列
+> ALTER TABLE 表名 DROP COLUMN 列名
+
+5. 修改表名
+> ALTER TABLE 表名 RENAME [TO] 新表名
+
+#### 删除表
+DROP TABLE [IF EXISTS] 表名
+
+#### 复制表
+1. 仅仅复制表的结构
+> CREATE TABLE 表名 LIKE 旧表;
+   
+2. 复制表的结构+数据
+> CREATE TABLE 表名  
+> SELECT 查询列表 FROM 旧表 [WHERE 筛选]
+
+### 数据类型
+#### 数值型
+1. 整型：tinyint、mediumint、int/integer、bigint  
+特点：  
+   ① 都可以设置无符号和有符号，默认有符号，通过UNSIGNED设置无符号  
+   ② 如果超出了范围，会报out of range异常，插入临界值
+   ③ 长度可以不指定，默认会有一个长度。长度表示显式的最大宽度，如果不够，左边用0填充和，但需要搭配ZEROFILL，并且默认变为无符号整型。
+   
+2. 浮点型：  
+   定点数：decimal(M, D)    4  
+   浮点数：float(M, D); double(M, D)    8  
+特点：  
+① M代表整数部位与小数部位的个数，D代表小数部位  
+② 如果超出范围，则报out of range异常，并且插入临界值  
+③ M和D都可以省略，但对于定点数，M默认为10，D默认为0  
+④ 如果精度要求较高，则优先考虑使用定点数
+
+#### 字符型
+char、varchar、binary、varbinary、enum、set、text、blob
+
+char：固定长度的字符，写法为char(M)，最大长度不能超过M，其中M可以省略，默认为1  
+varchar：可变长度的字符，写法为varchar(M)，最大长度不能超过M，其中M不能省略
+
+#### 日期型
+year 年  
+date 日期  
+time 时间  
+datetime 日期+时间  
+timestamp 日期+时间 受时区、语法模式、版本的影响，更能反映时区的真实事件
+
+### 常见的约束
+
+
 
 
     
