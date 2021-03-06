@@ -549,34 +549,12 @@ datetime 日期+时间
 timestamp 日期+时间 受时区、语法模式、版本的影响，更能反映时区的真实事件
 
 ### 常见的约束
-> CREATE TABLE 表名(  
-> 字段名 字段类型 约束  
-> )  
-
-含义：一种限制，用于限制表中的数据，为了保证表中的数据的准确性和可靠性
-
-分类：六大约束  
 + NOT NULL：非空，用于保证该字段的值不能为空。比如姓名、学号等
 + DEFAULT：默认，用于保证该字段有默认值。比如性别
 + PRIMARY KEY：主键，用于保证该字段的值具有唯一性，并且非空。比如学号、员工编号
 + UNIQUE：唯一，用于保证该字段的值具有唯一性，可以为空。比如座位号，邮箱
 + CHECK：检查约束[mysql中不支持]。比如年龄，性别
-+ FOREIGN KEY：外键，用于限制两个表的关系，用于保证改字段的值必须来自主表的关联列的。在从表添加外键的约束，用于引用主表中某列的值
-比如专业编号，员工表的部门编号，员工表的工种编号。
-
-添加约束的时机： 
-1. 创建表时
-2. 修改表时
-
-约束的添加分类：  
-列级约束：六大约束在语法上都支持，但外键约束没有效果  
-表级约束：除了非空、默认，其他都支持  
-
->  	 SELECT TABLE 表名(  
->		字段名 字段类型 列级约束,  
->		字段名 字段类型,  
->		表级约束  
->       )  
++ FOREIGN KEY：外键，用于限制两个表的关系，用于保证改字段的值必须来自主表的关联列的。在从表添加外键的约束，用于引用主表中某列的值。比如专业编号，员工表的部门编号，员工表的工种编号。
 
 主键和唯一的对比：
 
@@ -585,12 +563,35 @@ timestamp 日期+时间 受时区、语法模式、版本的影响，更能反�
 |主键|√|否|至多有一个|
 |唯一|√|是|可以有多个|
 
-外键：  
+外键：
 1. 要求在从表设置外键关系
 2. 从表的外键列的类型和主表的关联列的类型要求一致或兼容
 3. 主表的关联列一般是一个key（主键、唯一）
 4. 插入数据时，先插入主表，再插入从表；删除数据时。先删除主表，再删除从表。
 
+可以通过以下两种方式删除主表的记录  
+#### 方式一：级联删除
+> ALTER TABLE stuinfo ADD CONSTRAINT fk_stu_major FOREIGN KEY (majorid) REFERENCES major(id) ON DELETE CASCADE;
+
+#### 方式二：级联置空
+> ALTER TABLE stuinfo ADD CONSTRAINT fk_stu_major FOREIGN KEY (majorid) REFERENCES major(id) ON DELETE SET NULL;
+
+添加约束的时机： 
+1. 创建表时
+2. 修改表时
+
+> SELECT TABLE 表名(  
+>   字段名 字段类型 NOT NULL, # 非空   
+>   字段名 字段类型 PRIMARY KEY, # 主键   
+>   字段名 字段类型 UNIQUE, # 唯一  
+>   字段名 字段类型 DEFAULT 值, # 默认    
+>	CONSTRAINT 约束名 FOREIGN KEY(字段名) REFERENCES 主表(被引用列)  
+>	表级约束    
+>   )   
+
+约束的添加分类：  
+列级约束：六大约束在语法上都支持，但外键约束没有效果  
+表级约束：除了非空、默认，其他都支持
 
 #### 1. 添加列级约束
 * 语法：
@@ -604,6 +605,63 @@ timestamp 日期+时间 受时区、语法模式、版本的影响，更能反�
 |:---:|:---:|:---:|:---:|
 |列级约束|列的后面|语法都支持，但外键没有效果|不可以|
 |表级约束|所有列的下面|默认非空都不支持，其他都支持|可以，（主键没有效果）|
+
+#### 3. 修改表时添加或删除约束
+1. 非空  
+   添加非空    
+   > ALTER TABLE 表名 MODIFY COLUMN 字段名 字段类型 NOT NULL;
+   
+   删除非空  
+   > ALTER TABLE 表名 MODIFY COLUMN 字段名 字段类型;
+2. 默认   
+   添加默认  
+   > ALTER TABLE 表名 MODIFY COLUMN 字段名 字段类型 DEFAULT 值
+   
+   删除默认  
+   > ALTER TABLE 表名 MODIFY COLUMN 字段名 字段类型;
+3. 主键  
+   添加主键  
+   > ALTER TABLE 表名 ADD PRIMARY KEY(字段名);
+   
+   删除主键
+   > ALTER TABLE 表名 DROP PRIMARY KEY;
+4. 唯一  
+   添加唯一
+   > ALTER TABLE 表名 ADD UNIQUE(字段名);
+   
+   删除唯一
+   > ALTER TABLE 表名 DROP INDEX 索引名;
+5. 外键  
+   添加外键
+   > ALTER TABLE 表名 ADD FOREIGN KEY(字段名) REFERENCES 主表(被引用列);
+
+   删除外键
+   > ALTER TABLE 表名 DROP FOREIGN KEY 约束名;
+    
+#### 自增长列
+特点：  
+1. 不用手动插入值，可以自动提供序列值，默认从1开始，步长也为1  
+   查询：
+   > SHOW variables LIKE '%auto_increment%';
+   
+   如果更改起始值：需要手动插入值   
+   如果更改补偿：更改系统变量
+   > SET auto_increment_increment = 1;
+2. 一个表至多有一个自增长列
+3. 自增长列只能支持数值型
+4. 自增长列必须为一个key
+
+创建表时设置自增长列
+> CREATE TABLE 表(
+>     字段名 字段类型 约束 AUTO_INCREMENT
+> );
+
+修改表时设置自增长列
+> ALTER TABLE 表 MODIFY COLUMN 字段名 字段类型 约束 AUTO_INCREMENT;
+
+删除自增长列
+> ALTER TABLE 表 MODIFY COLUMN 字段名 字段类型 约束 ;
+
 
 ## TCL语言
 ### 事务
@@ -620,9 +678,91 @@ D: 持久性：一个事务一旦提交，则永久的持久化本地
 隐式(自动)事务：没有明显的开始和结束，本身就是一条事务可以自动提交，比如INSERT、UPDATE、DELETE  
 显式事务事务：具有明显的开启和结束
 
-使用显式事务
+使用显式事务  
+① 开启事务：  
+> SET autocommit = 0;  
+> START TRANSACTION;    可以省略
 
-    
+② 编写逻辑sql语句  
+注意：事务中支持的SQL语句支持的是INSERT、UPDATE、DELETE  
+
+设置回滚点：  
+> SAVEPOINT 回滚点名
+
+③ 结束事务
+> 提交：COMMIT;  
+> 回滚：ROLLBACK  
+> 回滚到指定的位置：ROLLBACK TO 回滚点名
+
+### 并发事务 
+1. 事务的并发问题是如何发生的   
+    多个事务同时操作同一个数据库的相同数据时  
+2. 并发问题有哪些？  
+   脏读：一个事务读取了其他事务还没有提交的数据，独到的是其他事务"更新"的数据  
+   幻读：一个事务读取了其他食物还没有提交的数据，只是读到的是其他事务"插入"的数据  
+   不可重复读：一个事务多次读取，结果不一样  
+3. 如何解决并发问题  
+   通过设置隔离级别解决并发问题  
+4. 隔离级别  
+   
+| |脏读|不可重复读|幻读|备注|
+|:---:|:---:|:---:|:---:|:---:|
+|READ UNCOMMITTED: 读未提交|有|有|有| |
+|READ COMMITTED: 读已提交|无|有|有|orcle默认|
+|REPEATABLE READ: 可重复读|无|无|有|mysql默认|  
+|SERIALIZABLE: 串行化|无|无|无| |  
+   
+
+## 视图
+### 含义
+mysql5.1出现的特性，本身是一个虚拟表，它的数据来自于表，执行时动态生成。  
+好处：   
+1. 简化sql语句
+2. 提高了sql的重用性
+3. 保护了基表的数据，提高了安全性
+
+### 创建
+> CREATE VIEW 视图名  
+> AS  
+> 查询语句;  
+
+### 修改
+方式一：
+> CREATE OR REPLACE VIEW 视图名  
+> AS  
+> 查询语句  
+
+方式二：
+ALTER VIEW 视图名
+AS
+查询语句
+
+### 删除
+> DROP VIEW 视图1, 视图2, ...
+
+### 查看
+> DESC 视图名;
+> SHOW CREATE VIEW 视图名;
+     
+### 使用
+1. INSERT 插入  
+2. UPDATE 修改   
+3. DELETE 删除
+4. SELECT 查看
+
+注意：视图一般是用于查询的，而不是更新的，因此具备以下特点的视图都不允许更新  
++ 包含分组函数、GROUP BY、DISTINCT、HAVING、UNION
++ JOIN
++ 常量视图
++ WHERE后的子查询用到了FROM中的表
++ 用到了不可更新的视图
+
+### 视图和表的对比
+
+| |关键字|是否占用物理空间|使用|
+|:---:|:---:|:---:|:---:|
+|视图|view|占用较小，只保存sql逻辑|一般用于查询|
+|表|table|占用较大，保存实际的数据|增删改查|
 
 
 
